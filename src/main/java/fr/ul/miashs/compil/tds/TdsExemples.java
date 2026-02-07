@@ -37,5 +37,15 @@ public static Tds prog3() {
 
     return tds;
 }
+public static Tds prog4() {
+
+    Tds tds = new Tds();
+
+    tds.ajouter(new Item("main", "void", "fonction"));
+
+    tds.ajouter(new Item("res", "int", "global"));
+
+    return tds;
+}
 
 }
