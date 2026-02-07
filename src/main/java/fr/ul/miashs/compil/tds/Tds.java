@@ -1,23 +1,31 @@
 package fr.ul.miashs.compil.tds;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Tds {
+private final ArrayList<Symbole> tds;
 
-    private List<Item> items;
-
-    public Tds() {
-        items = new ArrayList<>();
+    public Tds(ArrayList<Symbole> tds) {
+        this.tds = tds;
+        for (int i = 0; i < tds.size(); i++) {
+            if (tds.get(i).getNom().equals("main")) {
+                tds.add(0, tds.remove(i));
+                break;
+            }
+        }
     }
-public void ajouter(Item item) {
-    items.add(item);
-}
-public void afficher() {
-    for (Item item : items) {
-        System.out.println(item.getNom() + " - " + item.getCategorie());
-    }
-}
 
+    public ArrayList<Symbole> getSymboles() {
+        return tds;
+    }
+
+    public Symbole getSymbole(String nom) {
+        for (Symbole symbole : tds) {
+            if (symbole.getNom().equals(nom)) {
+                return symbole;
+            }
+        }
+        return null;
+    }
 
 }

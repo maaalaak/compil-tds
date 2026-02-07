@@ -4,18 +4,18 @@
  * Created at 25 févr. 2026
  */
 package fr.ul.miashs.compil.traduction;
-import fr.ul.miashs.compil.arbre.Affectation;
-import fr.ul.miashs.compil.arbre.Const;
-import fr.ul.miashs.compil.arbre.Idf;
-import fr.ul.miashs.compil.arbre.Moins;
-import fr.ul.miashs.compil.arbre.Multiplication;
-import fr.ul.miashs.compil.arbre.Division;
-import fr.ul.miashs.compil.arbre.Noeud;
-import fr.ul.miashs.compil.arbre.Plus;
+import java.util.Objects;
+
+import fr.ul.miashs.compil.arbre.*;
+import fr.ul.miashs.compil.tds.Categorie;
+import fr.ul.miashs.compil.tds.Tds;
+import fr.ul.miashs.compil.tds.Symbole;
 /**
  * Générateur de code pour un arbre d'affectation
  */
 public class Generateur {
+
+    private final Tds tds;
     /**
      * Générer le code pour une affectation
      * @param aff : noeud d'affectation
@@ -95,5 +95,107 @@ public class Generateur {
                 break;
         }
         return code.toString();
+    }
+
+    //a revoir 
+    public String genererData() {
+        StringBuffer code = new StringBuffer();
+        code.append("  BR(").append(this.tds.getSymboles().get(0).getNom()).append(")\n");
+        for (Symbole sym : this.tds.getSymboles()) {
+            if (sym.getCategorie().equals("global") && Objects.equals(sym.getType(), "int")) {
+                code.append(sym.getNom()).append(": LONG(").append(sym.getValeur()).append(")\n");
+            }
+        }
+        code.append("\n");
+        return code.toString();
+    }
+    public String generer_programme(Prog porg) {
+        StringBuffer code = new StringBuffer();
+        code.append (".include beta.uasm\n.include intio.uasm\nCMOVE (pile, SP)\n.BR(debut)");
+        code.append(genererData());
+        code.append("CALL(main)\nHALT");
+        code.append(genererFonction(null));
+        code.append("pile:");
+        return code.toString();
+    }
+
+    public String genererFonction(Fonction f) {
+        StringBuffer code = new StringBuffer();
+        code.append(f.getValeur()).append(":\n");
+        code.append("PUSH(LP)\n")
+            .append("PUSH(BP)\n")
+            .append("MOVE(SP, BP)\n")
+            .append("ALLOCATE(").append(this.tds.getSymbole(f.getValeur().toString()).getNbVariables()).append(")\n");
+        for (Noeud fils : f.getFils()) {
+            code.append(genererInstruction(fils));
+        }
+        code.append("ret_").append(f.getValeur()).append(":\n");
+            code.append("  DEALLOCATE(").append(this.tds.getSymbole(f.getValeur().toString()).getNbVariables()).append(")\n")
+                    .append("  POP(BP)\n")
+                    .append("  POP(LP)\n")
+                    .append("  RTN()\n");
+
+        
+        return code.toString();
+    }
+
+    public String genererEcriture(Ecrire e) {
+        StringBuffer code = new StringBuffer();
+        code.append(genererExpression(e.getFils()));
+        code.append("POP(R0)\n");
+        code.append("WRINT\n");
+        return code.toString();
+    }
+
+    public String genererAppel(Appel a) {
+        StringBuffer code = new StringBuffer();
+        if(this.tds.getSymbole(a.getValeur().toString()).getCategorie().equals("int")){ {
+            code.append("ALLOCATE(1)\n");
+        }
+        for(Noeud fils : a.getFils()){
+            code.append(genererExpression(fils));
+        }
+        code.append("CALL(").append(a.getValeur().toString()).append(")\n")
+          .append("DEALLOCATE(").append(this.tds.getSymbole(a.getValeur().toString()).getNbParametres()).append(")\n");
+        }
+        return code.toString();
+    }
+    
+    public String genererRetour(Retour r) {
+        StringBuffer code = new StringBuffer();
+        code.append(genererExpression(r.getFils()));
+        code.append("POP(R0)\n");
+        if (!r.getFils().isEmpty()) {
+            code.append(genererExpression(r.getFils().get(0)));
+            int offsetResultat = (2 + this.tds.getSymbole(r.getValeur().toString()).getNbVariables()) * -4;
+            code.append("  POP(R0)\n")
+                    .append("  PUTFRAME(R0, ").append(offsetResultat).append(")\n");
+        }
+        code.append("  BR(ret_").append(r.getValeur().toString()).append(")\n");
+        return code.toString();
+    }
+
+
+    public String genererInstruction(Noeud instruction) {
+        if (instruction instanceof Affectation a) {
+            return genererAffectation(a);
+        } else if (instruction instanceof Si s) {
+            return genererConditionnel(s);
+        } else if (instruction instanceof TantQue tantQue) {
+            return genererIteration(tantQue);
+        } else if (instruction instanceof Appel a) {
+            return genererAppel(a);
+        } else if (instruction instanceof Retour r) {
+            return genererRetour(r);
+        } else if (instruction instanceof Ecrire e) {
+            return genererEcriture(e);
+        } else if (instruction instanceof Bloc b) {
+            StringBuilder code = new StringBuilder();
+            for (Noeud fils : b.getFils()) {
+                code.append(genererInstruction(fils));
+            }
+            return code.toString();
+        }
+        return "";
     }
 }
