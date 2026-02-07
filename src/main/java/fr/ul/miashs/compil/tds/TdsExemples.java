@@ -78,11 +78,42 @@ public class TdsExemples  {
 
         return tds;
     }
-    public static Tds prog7() {
-    return prog6();
+    public static void programme7() {
+
+    Tds tds = new Tds();
+
+    tds.ajouter(new Item("main", "void", "fonction", null));
+
+    tds.ajouter(new Item("a", "int", "global", null));
+    tds.ajouter(new Item("b", "int", "global", null));
+    tds.ajouter(new Item("x", "int", "global", null));
+
+    tds.afficher();
 }
-public static Tds prog8() {
-    return prog6();
+public static void programme8() {
+
+    Tds tds = new Tds();
+
+    tds.ajouter(new Item("main", "void", "fonction", null));
+
+    tds.ajouter(new Item("i", "int", "global", null));
+
+    tds.afficher();
+}
+public static void programme9() {
+
+    Tds tds = new Tds();
+
+    // main
+    tds.ajouter(new Item("main", "void", "fonction", null));
+
+    // fonction f
+    tds.ajouter(new Item("f", "int", "fonction", null));
+
+    // paramètre de f
+    tds.ajouter(new Item("a", "int", "param", "f"));
+
+    tds.afficher();
 }
 
 
