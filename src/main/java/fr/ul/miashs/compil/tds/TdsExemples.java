@@ -77,4 +77,13 @@ public class TdsExemples  {
         tds.ajouter(new Item("res", "int", "local", "f"));
 
         return tds;
-    }}
+    }
+    public static Tds prog7() {
+    return prog6();
+}
+public static Tds prog8() {
+    return prog6();
+}
+
+
+}
