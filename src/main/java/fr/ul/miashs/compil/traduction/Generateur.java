@@ -16,6 +16,9 @@ import fr.ul.miashs.compil.tds.Symbole;
 public class Generateur {
 
     private final Tds tds;
+    public Generateur(Tds tds) {
+        this.tds = tds;
+    }
     /**
      * Générer le code pour une affectation
      * @param aff : noeud d'affectation
@@ -114,7 +117,9 @@ public class Generateur {
         code.append (".include beta.uasm\n.include intio.uasm\nCMOVE (pile, SP)\n.BR(debut)");
         code.append(genererData());
         code.append("CALL(main)\nHALT");
-        code.append(genererFonction(null));
+        for (Noeud fonction : porg.getFils()) {
+            code.append(genererFonction((Fonction) fonction));
+        }        
         code.append("pile:");
         return code.toString();
     }
