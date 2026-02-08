@@ -180,6 +180,37 @@ public class Generateur {
         return code.toString();
     }
 
+    public String genererConditionnel(Si s) {
+        StringBuilder code = new StringBuilder();
+        code.append(genererExpression(s.getFils().get(0)))
+                .append("  BT(R0, THEN_LABEL)\n");
+        code.append("  BF(R0, ELSE_LABEL)\n");
+        code.append("THEN_LABEL:\n")
+                .append(genererInstruction(s.getFils().get(1)))
+                .append("  BR(END_IF_LABEL)\n");
+        code.append("ELSE_LABEL:\n")
+                .append(genererInstruction(s.getFils().get(2)));
+        code.append("END_IF_LABEL:\n");
+        return code.toString();
+    }
+
+
+    public String genererIteration(TantQue tantQue) {
+        StringBuilder code = new StringBuilder();
+        code.append("LOOP :").append("\n");
+        tantQue.getFils().forEach(fils -> {
+            if (fils instanceof Bloc) {
+                code.append(genererInstruction(fils));
+            } else {
+                code.append(genererExpression(fils));
+                code.append("  POP(R0)\n")
+                        .append("  BF(R0, END_LOOP)\n");
+            }
+        });
+        code.append("BR(LOOP)\n")
+                .append("END_LOOP:\n");
+        return code.toString();
+    }
 
     public String genererInstruction(Noeud instruction) {
         if (instruction instanceof Affectation a) {
