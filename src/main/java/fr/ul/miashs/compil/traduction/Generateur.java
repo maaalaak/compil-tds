@@ -146,7 +146,7 @@ public class Generateur {
 
     public String genererEcriture(Ecrire e) {
         StringBuffer code = new StringBuffer();
-        code.append(genererExpression(e.getFils()));
+        code.append(genererExpression(e.getLeFils()));
         code.append("POP(R0)\n");
         code.append("WRINT\n");
         return code.toString();
@@ -168,7 +168,7 @@ public class Generateur {
     
     public String genererRetour(Retour r) {
         StringBuffer code = new StringBuffer();
-        code.append(genererExpression(r.getFils()));
+        code.append(genererExpression(r.getLeFils()));
         code.append("POP(R0)\n");
         if (!r.getFils().isEmpty()) {
             code.append(genererExpression(r.getFils().get(0)));
